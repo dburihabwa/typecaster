@@ -63,31 +63,36 @@ public class ConfigurationBuilder {
     private JavaVersion getJavaVersion(BuildSystem buildSystem)  {
         if (buildSystem.equals(BuildSystem.MAVEN)) {
             Path model = path.resolve("pom.xml");
-            try {
-                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-                factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-                DocumentBuilder builder = factory.newDocumentBuilder();
-                Document document = builder.parse(model.toFile());
-                NodeList properties = document.getElementsByTagName("properties");
-                if (properties == null || properties.getLength() == 0) {
-                    return JavaVersion.UNDETERMINED;
-                }
-                Element propertiesElement = (Element) properties.item(0);
-                NodeList childNodes = propertiesElement.getChildNodes();
-                for (int i = 0; i < childNodes.getLength(); i++) {
-                    Node node = childNodes.item(i);
-                    if (node.getNodeType() == Node.ELEMENT_NODE) {
-                        Element element = (Element) node;
-                        if (element.getTagName().equals("maven.compiler.source") && element.hasChildNodes()) {
-                            return match(element.getChildNodes().item(0).getNodeValue());
-                        }
-                    }
-                }
-            } catch (ParserConfigurationException | SAXException | IOException e) {
-                LOG.log(Level.WARNING, e.getMessage());
+            return getJavaVersionFromPomXml(model);
+        }
+        return JavaVersion.UNDETERMINED;
+    }
+
+    private static JavaVersion getJavaVersionFromPomXml(Path model) {
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(model.toFile());
+            NodeList properties = document.getElementsByTagName("properties");
+            if (properties == null || properties.getLength() == 0) {
+                LOG.log(Level.WARNING, () -> String.format("Could not find properties tag in %s.", model));
                 return JavaVersion.UNDETERMINED;
             }
+            Element propertiesElement = (Element) properties.item(0);
+            NodeList childNodes = propertiesElement.getChildNodes();
+            for (int i = 0; i < childNodes.getLength(); i++) {
+                Node node = childNodes.item(i);
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+                    Element element = (Element) node;
+                    if (element.getTagName().equals("maven.compiler.source") && element.hasChildNodes()) {
+                        return match(element.getChildNodes().item(0).getNodeValue());
+                    }
+                }
+            }
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            LOG.log(Level.WARNING, e::getMessage);
         }
         return JavaVersion.UNDETERMINED;
     }
