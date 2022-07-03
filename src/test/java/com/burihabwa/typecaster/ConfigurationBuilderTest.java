@@ -55,7 +55,8 @@ class ConfigurationBuilderTest {
         return Stream.of(
                 Arguments.of(RESOURCES_PATH.resolve("empty-gradle-kts-project"), BuildSystem.GRADLE),
                 Arguments.of(RESOURCES_PATH.resolve("empty-gradle-project"), BuildSystem.GRADLE),
-                Arguments.of(RESOURCES_PATH.resolve("empty-maven-project"), BuildSystem.MAVEN)
+                Arguments.of(RESOURCES_PATH.resolve("empty-maven-project"), BuildSystem.MAVEN),
+                Arguments.of(RESOURCES_PATH.resolve("empty-project"), BuildSystem.UNDETERMINED)
         );
     }
 }
