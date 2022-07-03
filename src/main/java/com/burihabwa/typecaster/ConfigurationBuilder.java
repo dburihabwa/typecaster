@@ -1,11 +1,25 @@
 package com.burihabwa.typecaster;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ConfigurationBuilder {
+    private static final Logger LOG = Logger.getLogger(ConfigurationBuilder.class.getCanonicalName());
     private Path path;
-
     private ConfigurationBuilder() {
         /* Do nothing */
     }
@@ -18,9 +32,10 @@ public class ConfigurationBuilder {
         if (path == null) {
             throw new IllegalStateException("Project path is not set.");
         }
+        BuildSystem buildSystem = getBuildSystem();
         return new Configuration(
-                getBuildSystem(),
-                JavaVersion.UNDETERMINED
+                buildSystem,
+                getJavaVersion(buildSystem)
         );
     }
 
@@ -43,5 +58,47 @@ public class ConfigurationBuilder {
             return BuildSystem.MAVEN;
         }
         return BuildSystem.UNDETERMINED;
+    }
+
+    private JavaVersion getJavaVersion(BuildSystem buildSystem)  {
+        if (buildSystem.equals(BuildSystem.MAVEN)) {
+            Path model = path.resolve("pom.xml");
+            try {
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+                factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                Document document = builder.parse(model.toFile());
+                NodeList properties = document.getElementsByTagName("properties");
+                if (properties == null || properties.getLength() == 0) {
+                    return JavaVersion.UNDETERMINED;
+                }
+                Element propertiesElement = (Element) properties.item(0);
+                NodeList childNodes = propertiesElement.getChildNodes();
+                for (int i = 0; i < childNodes.getLength(); i++) {
+                    Node node = childNodes.item(i);
+                    if (node.getNodeType() == Node.ELEMENT_NODE) {
+                        Element element = (Element) node;
+                        if (element.getTagName().equals("maven.compiler.source") && element.hasChildNodes()) {
+                            return match(element.getChildNodes().item(0).getNodeValue());
+                        }
+                    }
+                }
+            } catch (ParserConfigurationException | SAXException | IOException e) {
+                LOG.log(Level.WARNING, e.getMessage());
+                return JavaVersion.UNDETERMINED;
+            }
+        }
+        return JavaVersion.UNDETERMINED;
+    }
+
+    private static JavaVersion match(String value){
+        if (value == null) {
+            return JavaVersion.UNDETERMINED;
+        }
+        return switch (value.trim().toLowerCase(Locale.ROOT)) {
+            case "17" -> JavaVersion.JAVA_17;
+            default -> JavaVersion.UNDETERMINED;
+        };
     }
 }

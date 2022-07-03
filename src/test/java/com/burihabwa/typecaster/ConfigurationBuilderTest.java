@@ -59,4 +59,17 @@ class ConfigurationBuilderTest {
                 Arguments.of(RESOURCES_PATH.resolve("empty-project"), BuildSystem.UNDETERMINED)
         );
     }
+
+    @Test
+    void build_set_proper_java_version() {
+        Configuration build = ConfigurationBuilder.newInstance()
+                .setPath(RESOURCES_PATH.resolve("empty-project"))
+                .build();
+        assertThat(build.version()).isEqualTo(JavaVersion.UNDETERMINED);
+
+        build = ConfigurationBuilder.newInstance()
+                .setPath(RESOURCES_PATH.resolve("maven-java-17-project"))
+                .build();
+        assertThat(build.version()).isEqualTo(JavaVersion.JAVA_17);
+    }
 }
