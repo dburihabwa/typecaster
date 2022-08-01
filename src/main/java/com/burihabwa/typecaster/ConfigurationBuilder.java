@@ -10,16 +10,21 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ConfigurationBuilder {
+    private static final Pattern GRADLE_SOURCE_COMPATIBILITY = Pattern.compile("sourceCompatibility\\s*=\\s*[\'\"](?<version>\\d+)[\'\"]");
     private static final Logger LOG = Logger.getLogger(ConfigurationBuilder.class.getCanonicalName());
     private Path path;
+
     private ConfigurationBuilder() {
         /* Do nothing */
     }
@@ -64,6 +69,24 @@ public class ConfigurationBuilder {
         if (buildSystem.equals(BuildSystem.MAVEN)) {
             Path model = path.resolve("pom.xml");
             return getJavaVersionFromPomXml(model);
+        } else if (buildSystem.equals(BuildSystem.GRADLE)) {
+            Path model = path.resolve("build.gradle");
+            return getJavaVersionFromBuildGradle(model);
+        }
+        return JavaVersion.UNDETERMINED;
+    }
+
+    private static JavaVersion getJavaVersionFromBuildGradle(Path model) {
+        String data;
+        try (FileInputStream in = new FileInputStream(model.toFile())) {
+            data = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            LOG.warning(e::getMessage);
+            return JavaVersion.UNDETERMINED;
+        }
+        Matcher matcher = GRADLE_SOURCE_COMPATIBILITY.matcher(data);
+        if (matcher.find()) {
+            return match(matcher.group("version"));
         }
         return JavaVersion.UNDETERMINED;
     }

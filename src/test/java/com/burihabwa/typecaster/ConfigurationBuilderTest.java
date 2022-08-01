@@ -26,7 +26,8 @@ class ConfigurationBuilderTest {
     @Test
     void set_path_throws_an_IllegalArgumentException_when_path_is_not_a_directory() {
         ConfigurationBuilder builder = ConfigurationBuilder.newInstance();
-        assertThatThrownBy(() -> builder.setPath(Path.of("non-existing-folder")))
+        Path path = Path.of("non-existing-folder");
+        assertThatThrownBy(() -> builder.setPath(path))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Project path is not set.");
     }
@@ -74,7 +75,8 @@ class ConfigurationBuilderTest {
                 Arguments.of(RESOURCES_PATH.resolve("empty-project"), JavaVersion.UNDETERMINED, "undetermined"),
                 Arguments.of(RESOURCES_PATH.resolve("maven-java-8-project"), JavaVersion.JAVA_8, "Maven Java 8"),
                 Arguments.of(RESOURCES_PATH.resolve("maven-java-11-project"), JavaVersion.JAVA_11, "Maven Java 11"),
-                Arguments.of(RESOURCES_PATH.resolve("maven-java-17-project"), JavaVersion.JAVA_17, "Maven Java 17")
+                Arguments.of(RESOURCES_PATH.resolve("maven-java-17-project"), JavaVersion.JAVA_17, "Maven Java 17"),
+                Arguments.of(RESOURCES_PATH.resolve("single-module-gradle-project"), JavaVersion.JAVA_17, "Gradle Java 17")
         );
     }
 }
