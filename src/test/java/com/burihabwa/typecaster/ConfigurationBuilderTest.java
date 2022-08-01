@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ConfigurationBuilderTest {
     private static final Path RESOURCES_PATH = Path.of("src", "test", "resources");
@@ -60,16 +59,22 @@ class ConfigurationBuilderTest {
         );
     }
 
-    @Test
-    void build_set_proper_java_version() {
-        Configuration build = ConfigurationBuilder.newInstance()
-                .setPath(RESOURCES_PATH.resolve("empty-project"))
-                .build();
-        assertThat(build.version()).isEqualTo(JavaVersion.UNDETERMINED);
 
-        build = ConfigurationBuilder.newInstance()
-                .setPath(RESOURCES_PATH.resolve("maven-java-17-project"))
+    @ParameterizedTest(name = "{2}")
+    @MethodSource("getProjectAndVersionPairs")
+    void build_sets_correct_java_version(Path pathToProject, JavaVersion version, String testName) {
+        Configuration build = ConfigurationBuilder.newInstance()
+                .setPath(pathToProject)
                 .build();
-        assertThat(build.version()).isEqualTo(JavaVersion.JAVA_17);
+        assertThat(build.version()).isEqualTo(version);
+    }
+
+    private static Stream<Arguments> getProjectAndVersionPairs() {
+        return Stream.of(
+                Arguments.of(RESOURCES_PATH.resolve("empty-project"), JavaVersion.UNDETERMINED, "undetermined"),
+                Arguments.of(RESOURCES_PATH.resolve("maven-java-8-project"), JavaVersion.JAVA_8, "Maven Java 8"),
+                Arguments.of(RESOURCES_PATH.resolve("maven-java-11-project"), JavaVersion.JAVA_11, "Maven Java 11"),
+                Arguments.of(RESOURCES_PATH.resolve("maven-java-17-project"), JavaVersion.JAVA_17, "Maven Java 17")
+        );
     }
 }

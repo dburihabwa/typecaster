@@ -102,6 +102,8 @@ public class ConfigurationBuilder {
             return JavaVersion.UNDETERMINED;
         }
         return switch (value.trim().toLowerCase(Locale.ROOT)) {
+            case "8" -> JavaVersion.JAVA_8;
+            case "11" -> JavaVersion.JAVA_11;
             case "17" -> JavaVersion.JAVA_17;
             default -> JavaVersion.UNDETERMINED;
         };
