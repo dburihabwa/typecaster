@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ConfigurationBuilderTest {
-    private static final Path RESOURCES_PATH = Path.of("src", "test", "resources");
+    private static final Path RESOURCES_PATH = Path.of("src", "test", "resources").toAbsolutePath();
     private static final Path EMPTY_PROJECT = RESOURCES_PATH.resolve("empty-project");
 
     @Test
