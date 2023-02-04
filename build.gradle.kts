@@ -1,6 +1,7 @@
 plugins {
     id("java")
     id("jacoco")
+    id("org.sonarqube") version "3.5.0.2730"
 }
 
 group = "com.burihabwa"
@@ -46,4 +47,12 @@ tasks.test {
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test) // tests are required to run before generating the report
+}
+
+sonarqube {
+    properties {
+        property("sonar.projectKey", "dburihabwa_typecaster")
+        property("sonar.organization", "dburihabwa")
+        property ("sonar.host.url", "https://sonarcloud.io")
+    }
 }
