@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("jacoco")
 }
 
 group = "com.burihabwa"
@@ -25,4 +26,24 @@ java {
 
 tasks.getByName<Test>("test") {
     useJUnitPlatform()
+}
+
+jacoco {
+    toolVersion = "0.8.8"
+}
+
+tasks.jacocoTestReport {
+    reports {
+        xml.required.set(true)
+        csv.required.set(false)
+        html.required.set(false)
+    }
+}
+
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test) // tests are required to run before generating the report
 }
