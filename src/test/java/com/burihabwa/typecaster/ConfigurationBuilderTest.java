@@ -1,10 +1,13 @@
 package com.burihabwa.typecaster;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
@@ -14,6 +17,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class ConfigurationBuilderTest {
     private static final Path RESOURCES_PATH = Path.of("src", "test", "resources").toAbsolutePath();
     private static final Path EMPTY_PROJECT = RESOURCES_PATH.resolve("empty-project");
+
+    @BeforeAll
+    static void createEmptyProject() throws IOException {
+        Files.createDirectories(RESOURCES_PATH.resolve("empty-project"));
+    }
 
     @Test
     void build_throws_an_exception_when_the_path_is_not_set() {
