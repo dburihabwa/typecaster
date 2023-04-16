@@ -78,6 +78,16 @@ class ConfigurationBuilderTest {
         assertThat(build.version()).isEqualTo(version);
     }
 
+    @Test
+    void build_sets_default_path_for_sources() {
+        Configuration build = ConfigurationBuilder.newInstance()
+                .setPath(RESOURCES_PATH.resolve(("maven-java-11-project")))
+                .build();
+        assertThat(build.sourceDirectories())
+                .isNotEmpty()
+                .containsOnly(Path.of(("src/main/java")));
+    }
+
     private static Stream<Arguments> getProjectAndVersionPairs() {
         return Stream.of(
                 Arguments.of(RESOURCES_PATH.resolve("empty-project"), JavaVersion.UNDETERMINED, "undetermined"),

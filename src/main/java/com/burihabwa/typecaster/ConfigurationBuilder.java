@@ -14,6 +14,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,7 +41,8 @@ public class ConfigurationBuilder {
         BuildSystem buildSystem = getBuildSystem();
         return new Configuration(
                 buildSystem,
-                getJavaVersion(buildSystem)
+                getJavaVersion(buildSystem),
+                List.of(Path.of("src/main/java"))
         );
     }
 
