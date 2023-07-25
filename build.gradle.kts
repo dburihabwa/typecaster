@@ -1,4 +1,5 @@
 plugins {
+    id("application")
     id("java")
     id("jacoco")
     id("org.sonarqube") version "4.0.0.2929"
@@ -19,6 +20,9 @@ dependencies {
 }
 repositories {
     mavenCentral()
+}
+application {
+    mainClass.set("com.burihabwa.typecaster.Main")
 }
 java {
     sourceCompatibility = JavaVersion.VERSION_17
