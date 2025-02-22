@@ -2,7 +2,7 @@ plugins {
     id("application")
     id("java")
     id("jacoco")
-    id("org.sonarqube") version "4.0.0.2929"
+    id("org.sonarqube") version "6.0.1.5171"
 }
 
 group = "com.burihabwa"
