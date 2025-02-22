@@ -2,7 +2,7 @@ plugins {
     id("application")
     id("java")
     id("jacoco")
-    id("org.sonarqube") version "4.0.0.2929"
+    alias(libs.plugins.sonarqube)
 }
 
 group = "com.burihabwa"
@@ -13,11 +13,15 @@ repositories {
 }
 
 dependencies {
-    implementation("commons-cli:commons-cli:1.5.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
-    testImplementation("org.assertj:assertj-core:3.23.1")
+    implementation(libs.commons.cli)
+    implementation(libs.logback.classic)
+    implementation(libs.slf4j.api)
+
+    testRuntimeOnly(libs.junit.jupiter.engine)
+
+    testImplementation(libs.assertj.core)
+    testImplementation(libs.junit.jupiter.api)
+    testImplementation(libs.junit.jupiter.params)
 }
 repositories {
     mavenCentral()
